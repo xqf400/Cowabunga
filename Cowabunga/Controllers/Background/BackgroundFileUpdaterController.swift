@@ -31,7 +31,10 @@ class BackgroundFileUpdaterController: ObservableObject {
         .init(key: "NotifBackground", title: NSLocalizedString("Notification Banner Background", comment: "Run in background option")),
         .init(key: "CCModuleBackground", title: NSLocalizedString("CC Module Background", comment: "Run in background option")),
         .init(key: "Lock", title: NSLocalizedString("Lock", comment: "Run in background option")),
-        .init(key: "Audio", title: NSLocalizedString("Audio", comment: "Run in background option"))
+        .init(key: "Audio", title: NSLocalizedString("Audio", comment: "Run in background option")),
+        .init(key: "Seconds", title: NSLocalizedString("Seconds", comment: "Run in background option")),
+        .init(key: "Date", title: NSLocalizedString("Date", comment: "Run in background option")),
+        .init(key: "Weather", title: NSLocalizedString("Weather", comment: "Run in background option"))
     ]
     
     public var time = 120.0
@@ -56,6 +59,16 @@ class BackgroundFileUpdaterController: ObservableObject {
     func updateFiles() {
         Task {
             let ak: String = "_BGApply"
+            
+            if UserDefaults.standard.bool(forKey: "TimeIsEnabled") == true {
+                setTimeSeconds()
+            }
+            if UserDefaults.standard.bool(forKey: "DateIsEnabled") == true {
+                setCrumbDate()
+            }
+            if UserDefaults.standard.bool(forKey: "WeatherIsEnabled") == true {
+                setCrumbWeather()
+            }
             
             // apply the dock
             if UserDefaults.standard.bool(forKey: "Dock\(ak)") {
@@ -137,6 +150,7 @@ class BackgroundFileUpdaterController: ObservableObject {
             if UserDefaults.standard.bool(forKey: "stakillerenabled") == true {
                 killSTA()
             }
+
         }
     }
 }

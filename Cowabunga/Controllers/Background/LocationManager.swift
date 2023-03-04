@@ -62,7 +62,7 @@ class LocationManager: NSObject, ObservableObject
 {
     var status: Status? = nil
 
-    private let locationManager: CLLocationManager
+    let locationManager: CLLocationManager
     
     override init()
     {

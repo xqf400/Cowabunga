@@ -30,6 +30,10 @@ struct StatusBarView: View {
     @State private var carPlayHidden: Bool = StatusManager.sharedInstance().isCarPlayHidden()
     @State private var VPNHidden: Bool = StatusManager.sharedInstance().isVPNHidden()
     
+    @State private var crumbDateTextEnabled: Bool = false
+    @State private var crumbWeatherEnabled: Bool = false
+    @State private var moreOnTheRight: Bool = false
+    
     let fm = FileManager.default
     
     var body: some  View {
@@ -95,6 +99,53 @@ struct StatusBarView: View {
                         StatusManager.sharedInstance().setCrumb(safeNv)
                     }
                 })
+                Toggle("Seconds", isOn: $timeTextEnabled).onChange(of: timeTextEnabled) { new in
+                    if new {
+                        UserDefaults.standard.set(true, forKey: "TimeIsEnabled")
+                        setTimeSeconds()
+                        timeTextEnabled = StatusManager.sharedInstance().isTimeOverridden()
+                    } else {
+                        UserDefaults.standard.set(false, forKey: "TimeIsEnabled")
+                        StatusManager.sharedInstance().unsetTime()
+                        timeTextEnabled = StatusManager.sharedInstance().isTimeOverridden()
+                    }
+                }
+                Toggle("Date above clock", isOn: $crumbDateTextEnabled).onChange(of: crumbDateTextEnabled, perform: { nv in
+                    if nv {
+                        crumbDateTextEnabled = true
+                        crumbWeatherEnabled = false
+                        UserDefaults.standard.set(crumbDateTextEnabled, forKey: "DateIsEnabled")
+                        UserDefaults.standard.set(crumbWeatherEnabled, forKey: "WeatherIsEnabled")
+
+                        setCrumbDate()
+                    } else {
+                        crumbDateTextEnabled = false
+                        UserDefaults.standard.set(crumbDateTextEnabled, forKey: "DateIsEnabled")
+                        StatusManager.sharedInstance().unsetCrumb()
+                    }
+                })
+                Toggle("Weather above clock", isOn: $crumbTextEnabled).onChange(of: crumbTextEnabled, perform: { nv in
+                    if nv {
+                        crumbDateTextEnabled = false
+                        crumbWeatherEnabled = true
+                        UserDefaults.standard.set(crumbWeatherEnabled, forKey: "WeatherIsEnabled")
+                        UserDefaults.standard.set(crumbDateTextEnabled, forKey: "DateIsEnabled")
+                        setCrumbWeather()
+                    } else {
+                        crumbWeatherEnabled = false
+                        UserDefaults.standard.set(crumbWeatherEnabled, forKey: "WeatherIsEnabled")
+                        StatusManager.sharedInstance().unsetCrumb()
+                    }
+                })
+                Toggle("Iphone 14", isOn: $moreOnTheRight).onChange(of: moreOnTheRight) { new in
+                    if new {
+                        moreOnTheRight = true
+                        UserDefaults.standard.set(moreOnTheRight, forKey: "moreOnTheRight")
+                    } else {
+                        moreOnTheRight = false
+                        UserDefaults.standard.set(moreOnTheRight, forKey: "moreOnTheRight")
+                    }
+                }
                 Toggle("Change Status Bar Time Text", isOn: $timeTextEnabled).onChange(of: timeTextEnabled, perform: { nv in
                     if nv {
                         StatusManager.sharedInstance().setTime(timeText)
@@ -185,6 +236,13 @@ struct StatusBarView: View {
             }
         }
         .navigationTitle("Status Bar")
+        .onAppear{
+            crumbDateTextEnabled = UserDefaults.standard.bool(forKey: "DateIsEnabled")
+            crumbWeatherEnabled = UserDefaults.standard.bool(forKey: "WeatherIsEnabled")
+            moreOnTheRight = UserDefaults.standard.bool(forKey: "moreOnTheRight")
+            UIApplication.shared.setMinimumBackgroundFetchInterval(30)
+            UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
+        }
     }
 }
 
